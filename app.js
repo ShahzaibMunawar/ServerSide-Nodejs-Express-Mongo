@@ -37,63 +37,43 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser('12345-67890-09876-54321'));
 // --------------------authentication
-  app.use(session({
-    name: 'session-id',
-    secret: '12345-67890-09876-54321',
-    saveUninitialized: false,
-    resave: false,
-    store: new FileStore()
-  }));
-
-function auth(req,res,next) {
-  console.log(req.session);
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
 
 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
-  if(!req.session.user){
-    var authHeader = req.headers.authorization;
-    //if auth header not available send error
-  if(!authHeader){
-    var err = new Error("You are not authenticated!!!");
-    res.setHeader('WWW-Authenticated','Basic');
-    err.status = 401;
-    return next(err);
+function auth (req, res, next) {
+    console.log(req.session);
+
+  if(!req.session.user) {
+      var err = new Error('You are not authenticated!');
+      err.status = 403;
+      return next(err);
   }
-  //if its valid user fetch username password
-  var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-  var username = auth[0];
-  var password = auth[1];
-
-//if username pass match move next
-  if (username === 'admin' && password === 'password'){
-    // res.cookie('user','admin', {signed: true});
-    req.session.user === 'admin';
-    next();
-  }
-  else{
-    res.setHeader('WWW-Authenticated','Basic');
-    err.status = 401;
-    return next(err);
-  }
-  }
-  else{
-    if(req.session.user=== 'admin'){
+  else {
+    if (req.session.user === 'authenticated') {
       next();
     }
-    else{
-    err.status = 401;
-    return next(err);
+    else {
+      var err = new Error('You are not authenticated!');
+      err.status = 403;
+      return next(err);
     }
   }
 }
 app.use(auth);
 
-
 // -------------------------------------
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leader', leaderRouter);
