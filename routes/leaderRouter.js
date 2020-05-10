@@ -40,9 +40,9 @@ leaderRouter.route('/')
         res.json(resp);
     }, (err) => next(err))
     .catch((err) => next(err));    
-});
+})
 
-promotionsRouter.route('/:promoId')
+leaderRouter.route('/:promoId')
 .get((req,res,next) => {
     Leader.findById(req.params.promoId)
     .then((leader) => {
@@ -76,4 +76,4 @@ promotionsRouter.route('/:promoId')
     }, (err) => next(err))
     .catch((err) => next(err));
 });
-module.exports = promotionsRouter;
+module.exports = leaderRouter;
